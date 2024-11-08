@@ -45,8 +45,10 @@
 				"          DepartmentName as string,",
 				"          Location as string",
 				"     ),",
+				"     partitionFileNames:['filterdata'],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
 	}
