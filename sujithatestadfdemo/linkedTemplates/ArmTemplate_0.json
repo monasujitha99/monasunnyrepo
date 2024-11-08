@@ -133,6 +133,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
+						"fileName": "EMPDEPT.CSV",
 						"container": "blobcontainer"
 					},
 					"columnDelimiter": ",",
