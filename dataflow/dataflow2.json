@@ -45,7 +45,7 @@
 				"          DepartmentName as string,",
 				"          Location as string",
 				"     ),",
-				"     partitionFileNames:['filterdata'],",
+				"     partitionFileNames:['filterdata.csv'],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
 				"     partitionBy('hash', 1)) ~> sink1"
