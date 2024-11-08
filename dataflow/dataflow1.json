@@ -67,10 +67,6 @@
 				"     partitionFileNames:['empdept'],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     mapColumn(",
-				"          DepartmentName,",
-				"          Location",
-				"     ),",
 				"     partitionBy('hash', 1)) ~> outputdata"
 			]
 		}
