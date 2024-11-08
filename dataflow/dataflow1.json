@@ -53,7 +53,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false) ~> DEPTDATA",
 				"employeedata, DEPTDATA join(employeedata@DepartmentID == DEPTDATA@DepartmentID,",
-				"     joinType:'inner',",
+				"     joinType:'left',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> empdeptdatajoin",
