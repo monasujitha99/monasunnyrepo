@@ -24,6 +24,9 @@
 			"transformations": [
 				{
 					"name": "aggregate1"
+				},
+				{
+					"name": "join1"
 				}
 			],
 			"scriptLines": [
@@ -39,7 +42,12 @@
 				"     ignoreNoFilesFound: false) ~> source1",
 				"source1 aggregate(groupBy(DepartmentID),",
 				"     totalempbydept = count(EmployeeID)) ~> aggregate1",
-				"aggregate1 sink(allowSchemaDrift: true,",
+				"aggregate1, source1 join(aggregate1@DepartmentID == ERROR_FUNCTION(''),",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          DepartmentID as string,",

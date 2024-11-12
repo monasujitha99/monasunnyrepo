@@ -31,6 +31,12 @@
 			"transformations": [
 				{
 					"name": "join1"
+				},
+				{
+					"name": "select1"
+				},
+				{
+					"name": "aggregate1"
 				}
 			],
 			"scriptLines": [
@@ -57,15 +63,27 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> join1",
-				"join1 sink(allowSchemaDrift: true,",
+				"join1 select(mapColumn(",
+				"          EmployeeID,",
+				"          DepartmentID = departmentdata@DepartmentID,",
+				"          DepartmentName",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 aggregate(groupBy(DepartmentID,",
+				"          DepartmentName),",
+				"     totalempbydept = count(EmployeeID)) ~> aggregate1",
+				"aggregate1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          DepartmentID as string,",
 				"          DepartmentName as string,",
 				"          Location as string",
 				"     ),",
+				"     partitionFileNames:['joineddata.csv'],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
 			]
 		}
 	}
