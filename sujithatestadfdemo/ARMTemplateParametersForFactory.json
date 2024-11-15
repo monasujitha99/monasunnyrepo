@@ -7,6 +7,18 @@
 		},
 		"LS_BLOBSTORAGE_connectionString": {
 			"value": ""
+		},
+		"SqlServer1_password": {
+			"value": ""
+		},
+		"SqlServer1_properties_typeProperties_server": {
+			"value": "sunehamona.database.windows.net"
+		},
+		"SqlServer1_properties_typeProperties_database": {
+			"value": "demoadfdatabase"
+		},
+		"SqlServer1_properties_typeProperties_userName": {
+			"value": "sunehamona"
 		}
 	}
 }
