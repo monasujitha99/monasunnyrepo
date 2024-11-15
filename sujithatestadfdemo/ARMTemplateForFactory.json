@@ -64,7 +64,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pipeline1')]",
+			"name": "[concat(parameters('factoryName'), '/pipeline2')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -83,11 +83,12 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "totalempbydeptdataflow",
+								"referenceName": "dataflow3",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
-									"source1": {},
+									"employeedata": {},
+									"departmentdata": {},
 									"sink1": {}
 								}
 							},
@@ -106,7 +107,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/totalempbydeptdataflow')]"
+				"[concat(variables('factoryId'), '/dataflows/dataflow3')]"
 			]
 		},
 		{
@@ -153,6 +154,53 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/dataflows/dataflow2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_totalempbydept')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "totalempbydept",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow3",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"employeedata": {},
+									"departmentdata": {},
+									"sink1": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow3')]"
 			]
 		},
 		{
@@ -485,7 +533,7 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/totalempbydeptdataflow')]",
+			"name": "[concat(parameters('factoryName'), '/dataflow3')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -497,7 +545,14 @@
 								"referenceName": "employeedataset",
 								"type": "DatasetReference"
 							},
-							"name": "source1"
+							"name": "employeedata"
+						},
+						{
+							"dataset": {
+								"referenceName": "deptdataset",
+								"type": "DatasetReference"
+							},
+							"name": "departmentdata"
 						}
 					],
 					"sinks": [
@@ -510,6 +565,12 @@
 						}
 					],
 					"transformations": [
+						{
+							"name": "join1"
+						},
+						{
+							"name": "select1"
+						},
 						{
 							"name": "aggregate1"
 						}
@@ -524,8 +585,29 @@
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false) ~> source1",
-						"source1 aggregate(groupBy(DepartmentID),",
+						"     ignoreNoFilesFound: false) ~> employeedata",
+						"source(output(",
+						"          DepartmentID as string,",
+						"          DepartmentName as string,",
+						"          Location as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> departmentdata",
+						"employeedata, departmentdata join(employeedata@DepartmentID == departmentdata@DepartmentID,",
+						"     joinType:'left',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 select(mapColumn(",
+						"          EmployeeID,",
+						"          DepartmentID = departmentdata@DepartmentID,",
+						"          DepartmentName",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 aggregate(groupBy(DepartmentID,",
+						"          DepartmentName),",
 						"     totalempbydept = count(EmployeeID)) ~> aggregate1",
 						"aggregate1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -534,7 +616,7 @@
 						"          DepartmentName as string,",
 						"          Location as string",
 						"     ),",
-						"     partitionFileNames:['totalempbydept'],",
+						"     partitionFileNames:['joineddata.csv'],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
 						"     partitionBy('hash', 1)) ~> sink1"
@@ -543,6 +625,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/employeedataset')]",
+				"[concat(variables('factoryId'), '/datasets/deptdataset')]",
 				"[concat(variables('factoryId'), '/datasets/outputdaatset')]"
 			]
 		}
