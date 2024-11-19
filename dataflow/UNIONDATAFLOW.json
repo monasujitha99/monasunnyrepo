@@ -1,0 +1,89 @@
+{
+	"name": "UNIONDATAFLOW",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DSTEST1",
+						"type": "DatasetReference"
+					},
+					"name": "DEPT1EMPLOYEES"
+				},
+				{
+					"dataset": {
+						"referenceName": "DSTEST3",
+						"type": "DatasetReference"
+					},
+					"name": "DEPT3EMPLOYEES"
+				},
+				{
+					"dataset": {
+						"referenceName": "DSTEST7",
+						"type": "DatasetReference"
+					},
+					"name": "DEPT7EMPLOYEES"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "outputdaatset",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "union1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          EmployeeID as string,",
+				"          Name as string,",
+				"          Role as string,",
+				"          Salary as string,",
+				"          DepartmentID as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> DEPT1EMPLOYEES",
+				"source(output(",
+				"          EmployeeID as string,",
+				"          Name as string,",
+				"          Role as string,",
+				"          Salary as string,",
+				"          DepartmentID as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> DEPT3EMPLOYEES",
+				"source(output(",
+				"          EmployeeID as string,",
+				"          Name as string,",
+				"          Role as string,",
+				"          Salary as string,",
+				"          DepartmentID as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> DEPT7EMPLOYEES",
+				"DEPT1EMPLOYEES, DEPT3EMPLOYEES, DEPT7EMPLOYEES union(byName: true)~> union1",
+				"union1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          DepartmentID as string,",
+				"          DepartmentName as string,",
+				"          Location as string",
+				"     ),",
+				"     partitionFileNames:['UNION.CSV'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sink1"
+			]
+		}
+	}
+}
