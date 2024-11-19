@@ -1,0 +1,55 @@
+{
+	"name": "sortdataflow",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_union",
+						"type": "DatasetReference"
+					},
+					"name": "allemployeesunion"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "sinkallemp",
+						"type": "DatasetReference"
+					},
+					"name": "allemployees"
+				}
+			],
+			"transformations": [
+				{
+					"name": "sort1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          EmployeeID as string,",
+				"          Name as string,",
+				"          Role as string,",
+				"          Salary as string,",
+				"          DepartmentID as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> allemployeesunion",
+				"allemployeesunion sort(asc(EmployeeID, true)) ~> sort1",
+				"sort1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          DepartmentID as string,",
+				"          DepartmentName as string,",
+				"          Location as string",
+				"     ),",
+				"     partitionFileNames:['allemp.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> allemployees"
+			]
+		}
+	}
+}
