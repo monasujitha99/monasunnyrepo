@@ -311,7 +311,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobStorageLocation",
-						"fileName": "dept7",
+						"fileName": "DERIVEDCOLUMNPRAC.CSV",
 						"container": "blobcontainer"
 					},
 					"columnDelimiter": ",",
@@ -988,6 +988,68 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/dataflow5')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "employeedataset",
+								"type": "DatasetReference"
+							},
+							"name": "EMPLOYEES"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "outputdaatset",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          EmployeeID as string,",
+						"          Name as string,",
+						"          Role as string,",
+						"          Salary as string,",
+						"          DepartmentID as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> EMPLOYEES",
+						"EMPLOYEES derive(Role = upper(Role),",
+						"          NEWNAME = iif(isNull(Name), '', upper(Name))) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          DepartmentID as string,",
+						"          DepartmentName as string,",
+						"          Location as string",
+						"     ),",
+						"     partitionFileNames:['DERIVEDCOLUMNPRAC.CSV'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/employeedataset')]",
+				"[concat(variables('factoryId'), '/datasets/outputdaatset')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/PL_DATAFLOW')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1082,13 +1144,13 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_filter')]",
+			"name": "[concat(parameters('factoryName'), '/pipelinecondsplit')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "Data flowfilter",
+						"name": "Data flow1",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
@@ -1101,12 +1163,14 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "dataflow2",
+								"referenceName": "dataflow4",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
-									"source1": {},
-									"sink1": {}
+									"sourceconditionalsplit": {},
+									"sink1": {},
+									"sink2": {},
+									"sink3": {}
 								}
 							},
 							"staging": {},
@@ -1124,54 +1188,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/dataflow2')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_totalempbydept')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "totalempbydept",
-						"type": "ExecuteDataFlow",
-						"dependsOn": [],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"dataflow": {
-								"referenceName": "dataflow3",
-								"type": "DataFlowReference",
-								"parameters": {},
-								"datasetParameters": {
-									"employeedata": {},
-									"departmentdata": {},
-									"sink1": {}
-								}
-							},
-							"staging": {},
-							"compute": {
-								"coreCount": 8,
-								"computeType": "General"
-							},
-							"traceLevel": "Fine"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/dataflow3')]"
+				"[concat(variables('factoryId'), '/dataflows/dataflow4')]"
 			]
 		}
 	]
