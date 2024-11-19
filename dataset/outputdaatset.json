@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobStorageLocation",
-				"fileName": "dept7",
+				"fileName": "DERIVEDCOLUMNPRAC.CSV",
 				"container": "blobcontainer"
 			},
 			"columnDelimiter": ",",
