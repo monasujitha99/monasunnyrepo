@@ -1,5 +1,5 @@
 {
-	"name": "dataflow4",
+	"name": "condsplitdataflow",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {

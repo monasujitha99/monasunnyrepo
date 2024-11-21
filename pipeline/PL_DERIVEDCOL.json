@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "dataflow5",
+						"referenceName": "derivedcolumndataflow",
 						"type": "DataFlowReference"
 					},
 					"compute": {
