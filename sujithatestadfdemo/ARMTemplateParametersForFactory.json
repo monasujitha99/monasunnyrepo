@@ -8,8 +8,14 @@
 		"LS_BLOBSTORAGE_connectionString": {
 			"value": ""
 		},
+		"LS_DATALAKE_accountKey": {
+			"value": ""
+		},
 		"SqlServer1_password": {
 			"value": ""
+		},
+		"LS_DATALAKE_properties_typeProperties_url": {
+			"value": "https://azuredatalakemona.dfs.core.windows.net/"
 		},
 		"SqlServer1_properties_typeProperties_server": {
 			"value": "sunehamona.database.windows.net"
